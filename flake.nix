@@ -1,5 +1,5 @@
 {
-  description = "polyglot";
+  description = "modularix";
 
   inputs = { nixpkgs.url = "github:NixOS/nixpkgs"; };
 
@@ -51,40 +51,24 @@
         };
       });
 
-      pw-reaper = pkgs.writeScriptBin "pw-reaper" ''
-        #!/bin/sh
-        exec ${pkgs.pipewire.jack}/bin/pw-jack ${reaper}/bin/reaper $*
-      '';
+      mkFlake = name: pkg: command:
+        let
+          wrapper = pkgs.writeScriptBin command ''
+            #!/bin/sh
+            exec ${pkgs.pipewire.jack}/bin/pw-jack ${pkg}/bin/${command} $*
+          '';
+        in {
+          packages."x86_64-linux"."${name}" = wrapper;
+          apps."x86_64-linux"."${name}" = {
+            type = "app";
+            program = "${wrapper}/bin/${command}";
+          };
+        };
 
-      pw-qjackctl = pkgs.writeScriptBin "pw-qjackctl" ''
-        #!/bin/sh
-        exec ${pkgs.pipewire.jack}/bin/pw-jack ${pkgs.qjackctl}/bin/qjackctl $*
-      '';
-
-    in {
-      packages."x86_64-linux".vcv = vcv;
-      apps."x86_64-linux".vcv = {
-        type = "app";
-        program = "${vcv}/bin/Rack";
-      };
-
-      packages."x86_64-linux".reaper = pw-reaper;
-      apps."x86_64-linux".reaper = {
-        type = "app";
-        program = "${pw-reaper}/bin/pw-reaper";
-      };
-
-      packages."x86_64-linux".qjackctl = pw-qjackctl;
-      apps."x86_64-linux".qjackctl = {
-        type = "app";
-        program = "${pw-qjackctl}/bin/pw-qjackctl";
-      };
-
-      packages."x86_64-linux".mididump = pkgs.pipewire;
-      apps."x86_64-linux".mididump = {
-        type = "app";
-        program = "${pkgs.pipewire}/bin/pw-mididump";
-      };
-
-    };
+    in pkgs.lib.foldr pkgs.lib.recursiveUpdate { } [
+      (mkFlake "vcv" vcv "Rack")
+      (mkFlake "reaper" reaper "reaper")
+      (mkFlake "qjackctl" pkgs.qjackctl "qjackctl")
+      (mkFlake "mididump" pkgs.pipewire "pw-mididump")
+    ];
 }
