@@ -65,7 +65,9 @@
           };
         };
 
-    in pkgs.lib.foldr pkgs.lib.recursiveUpdate { } [
+    in pkgs.lib.foldr pkgs.lib.recursiveUpdate {
+      packages.x86_64-linux.qpwgraph = pkgs.qpwgraph;
+    } [
       (mkFlake "vcv" vcv "Rack")
       (mkFlake "reaper" reaper "reaper")
       (mkFlake "qjackctl" pkgs.qjackctl "qjackctl")

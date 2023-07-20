@@ -8,10 +8,13 @@ $ nix run github:podenv/modularix#app
 
 Available app:
 
+- qpwgraph
 - vcv
 - reaper
-- qjackctl
 - mididump
+
+Deprecated by qpwgraph:
+- qjackctl
 
 ## Usage
 
