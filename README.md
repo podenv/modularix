@@ -13,7 +13,8 @@ Available app:
 - reaper
 - mididump
 
-- blender-3.6.1
+- blender
+- blender-humans (run once to add to library)
 
 Deprecated by qpwgraph:
 - qjackctl

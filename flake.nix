@@ -17,9 +17,6 @@
           url = "https://mirrors.ocf.berkeley.edu/blender/release/Blender3.6/blender-${version}-linux-x64.tar.xz";
           sha256 = "sha256-Rl4d3rYKmnrFcSyby/6PI6WHhITmWz2cKHlfenARPjE=";
         };
-        # This should patchelf to fix nixpkgs libs, but that currently does not work:
-        # glwf fails to create the display.
-        # nativeBuildInputs = [ pkgs.autoPatchelfHook ];
         unpackPhase = ''
           # Unpack sources
           tar xf $src
@@ -29,12 +26,40 @@
           mkdir $out/bin
           cat <<EOF> $out/bin/blender
           #!/bin/sh
-          cd $out; exec ./blender
+          export LD_LIBRARY_PATH=${pkgs.libdecor}/lib
+          exec $out/blender \$*
           EOF
           chmod +x $out/bin/blender
         '';
         dontStrip = true;
         dontInstall = true;
+      };
+
+      human-base-meshes-bundle = pkgs.stdenv.mkDerivation rec {
+        pname = "human-base-meshes-bundle";
+        version = "1.0.0";
+        src = pkgs.fetchurl {
+          url = "https://mirrors.ocf.berkeley.edu/blender/demo/bundles/bundles-3.6/human-base-meshes-bundle-v${version}.zip";
+          sha256 = "sha256-RqkSwFJAcqw7eMNdXSRx33uN8QI5SgUMqM1xhOM5Nkg=";
+        };
+        unpackPhase = ''
+          # Unpack sources
+          mkdir -p $out
+          cd $out
+          ${pkgs.unzip}/bin/unzip $src
+        '';
+        dontStrip = true;
+        dontInstall = true;
+      };
+      open-human-bundle = {
+        type = "app";
+        program =
+          let wrapper = pkgs.writeScriptBin "blender-open-human-bundle" ''
+            #!/bin/sh
+            echo exec ${blender}/bin/blender ${human-base-meshes-bundle}/human_base_meshes_bundle.blend
+            exec ${blender}/bin/blender ${human-base-meshes-bundle}/human_base_meshes_bundle.blend
+            '';
+           in "${wrapper}/bin/blender-open-human-bundle";
       };
 
       vcv = pkgs.stdenv.mkDerivation rec {
@@ -94,6 +119,7 @@
 
     in pkgs.lib.foldr pkgs.lib.recursiveUpdate {
       packages.x86_64-linux.qpwgraph = pkgs.qpwgraph;
+      apps.x86_64-linux.blender-humans = open-human-bundle;
     } [
       (mkFlake "vcv" vcv "Rack")
       (mkFlake "reaper" reaper "reaper")
