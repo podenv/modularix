@@ -13,6 +13,8 @@ Available app:
 - reaper
 - mididump
 
+- blender-3.6.1
+
 Deprecated by qpwgraph:
 - qjackctl
 

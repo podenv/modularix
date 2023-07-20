@@ -10,6 +10,33 @@
         config.allowUnfree = true;
       };
 
+      blender = pkgs.stdenv.mkDerivation rec {
+        pname = "blender";
+        version = "3.6.1";
+        src = pkgs.fetchurl {
+          url = "https://mirrors.ocf.berkeley.edu/blender/release/Blender3.6/blender-${version}-linux-x64.tar.xz";
+          sha256 = "sha256-Rl4d3rYKmnrFcSyby/6PI6WHhITmWz2cKHlfenARPjE=";
+        };
+        # This should patchelf to fix nixpkgs libs, but that currently does not work:
+        # glwf fails to create the display.
+        # nativeBuildInputs = [ pkgs.autoPatchelfHook ];
+        unpackPhase = ''
+          # Unpack sources
+          tar xf $src
+          mv blender-* $out
+
+          # Setup wrapper
+          mkdir $out/bin
+          cat <<EOF> $out/bin/blender
+          #!/bin/sh
+          cd $out; exec ./blender
+          EOF
+          chmod +x $out/bin/blender
+        '';
+        dontStrip = true;
+        dontInstall = true;
+      };
+
       vcv = pkgs.stdenv.mkDerivation rec {
         pname = "Rack";
         version = "2.2.1";
@@ -70,6 +97,7 @@
     } [
       (mkFlake "vcv" vcv "Rack")
       (mkFlake "reaper" reaper "reaper")
+      (mkFlake "blender" blender "blender")
       (mkFlake "qjackctl" pkgs.qjackctl "qjackctl")
       (mkFlake "mididump" pkgs.pipewire "pw-mididump")
     ];
