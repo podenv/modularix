@@ -12,10 +12,10 @@
 
       blender = pkgs.stdenv.mkDerivation rec {
         pname = "blender";
-        version = "3.6.1";
+        version = "4.0.2";
         src = pkgs.fetchurl {
-          url = "https://mirrors.ocf.berkeley.edu/blender/release/Blender3.6/blender-${version}-linux-x64.tar.xz";
-          sha256 = "sha256-Rl4d3rYKmnrFcSyby/6PI6WHhITmWz2cKHlfenARPjE=";
+          url = "https://mirrors.ocf.berkeley.edu/blender/release/Blender4.0/blender-${version}-linux-x64.tar.xz";
+          sha256 = "sha256-VYOlWIc22ohYxSLvF//11zvlnEem/pGtKcbzJj4iCGo=";
         };
         unpackPhase = ''
           # Unpack sources
