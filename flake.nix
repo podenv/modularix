@@ -107,6 +107,7 @@
         let
           wrapper = pkgs.writeScriptBin command ''
             #!/bin/sh
+            export PATH=$PATH:${pkgs.gnome.zenity}/bin
             exec ${pkgs.pipewire.jack}/bin/pw-jack ${pkg}/bin/${command} $*
           '';
         in {
