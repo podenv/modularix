@@ -94,12 +94,12 @@
       };
 
       reaper = pkgs.reaper.overrideAttrs (old: rec {
-        version = "6.56";
+        version = "7.08";
         src = pkgs.fetchurl {
-          url = "https://www.reaper.fm/files/6.x/reaper${
+          url = "https://www.reaper.fm/files/7.x/reaper${
               builtins.replaceStrings [ "." ] [ "" ] version
             }_linux_x86_64.tar.xz";
-          hash = "sha256-ys4cmqr70F0RMmaPDdvsFauAwQZpJSO71aKSBgB5Zbk=";
+          hash = "sha256-lya/B9k9uWrvRbMnWRT0YDV9o+DpmjPGynBVPFij3rs=";
         };
       });
 
