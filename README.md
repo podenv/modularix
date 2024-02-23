@@ -11,6 +11,7 @@ Available app:
 - qpwgraph
 - vcv
 - reaper
+- cardinal (add store path to repear's lv2 dir)
 - mididump
 
 - blender

@@ -115,15 +115,29 @@
         dontInstall = true;
       };
 
-      reaper = pkgs.reaper.overrideAttrs (old: rec {
-        version = "7.08";
+      reaper = pkgs.stdenv.mkDerivation rec {
+        pname = "reaper";
+        version = "711";
         src = pkgs.fetchurl {
-          url = "https://www.reaper.fm/files/7.x/reaper${
-              builtins.replaceStrings [ "." ] [ "" ] version
-            }_linux_x86_64.tar.xz";
-          hash = "sha256-lya/B9k9uWrvRbMnWRT0YDV9o+DpmjPGynBVPFij3rs=";
+          url =
+            "http://reaper.fm/files/7.x/reaper${version}_linux_x86_64.tar.xz";
+          sha256 = "sha256-lpgGXHWWhhs1jLllq5C3UhOLgLyMTE6qWFiGkBcuWlo=";
         };
-      });
+        nativeBuildInputs = [ pkgs.which pkgs.autoPatchelfHook pkgs.xdg-utils ];
+        buildInputs = [ pkgs.stdenv.cc.cc.lib pkgs.gtk3 pkgs.alsa-lib ];
+        runtimeDependencies = [
+          pkgs.gtk3 # libSwell needs libgdk-3.so.0
+        ];
+        unpackPhase = ''
+          tar xf $src
+          mv */REAPER $out
+          # Setup wrapper
+          mkdir -p $out/bin
+          ln -s $out/reaper $out/bin/reaper
+        '';
+        dontStrip = true;
+        dontInstall = true;
+      };
 
       mkFlake = name: pkg: command:
         let
