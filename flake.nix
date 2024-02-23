@@ -10,6 +10,28 @@
         config.allowUnfree = true;
       };
 
+      cardinal = pkgs.stdenv.mkDerivation rec {
+        pname = "cardinal";
+        version = "23.10";
+        src = pkgs.fetchurl {
+          url = "https://github.com/DISTRHO/Cardinal/releases/download/23.10/Cardinal-linux-x86_64-${version}.tar.gz";
+          sha256 = "sha256-uC0rKY3uNC7zuRkaeIZQkrc0CuxfyvXFhs32cFBm/vw=";
+        };
+        unpackPhase = ''
+          # Unpack sources
+          mkdir $out
+          pushd $out
+          tar xf $src
+          popd
+
+          # Setup wrapper
+          mkdir -p $out/bin
+          ln -s $out/CardinalJACK $out/bin/Cardinal
+        '';
+        dontStrip = true;
+        dontInstall = true;
+      };
+
       blender = pkgs.stdenv.mkDerivation rec {
         pname = "blender";
         version = "4.0.2";
@@ -123,6 +145,7 @@
       apps.x86_64-linux.blender-humans = open-human-bundle;
     } [
       (mkFlake "vcv" vcv "Rack")
+      (mkFlake "cardinal" cardinal "Cardinal")
       (mkFlake "reaper" reaper "reaper")
       (mkFlake "blender" blender "blender")
       (mkFlake "qjackctl" pkgs.qjackctl "qjackctl")
