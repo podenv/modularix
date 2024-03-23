@@ -14,7 +14,8 @@
         pname = "cardinal";
         version = "23.10";
         src = pkgs.fetchurl {
-          url = "https://github.com/DISTRHO/Cardinal/releases/download/23.10/Cardinal-linux-x86_64-${version}.tar.gz";
+          url =
+            "https://github.com/DISTRHO/Cardinal/releases/download/23.10/Cardinal-linux-x86_64-${version}.tar.gz";
           sha256 = "sha256-uC0rKY3uNC7zuRkaeIZQkrc0CuxfyvXFhs32cFBm/vw=";
         };
         unpackPhase = ''
@@ -36,7 +37,8 @@
         pname = "blender";
         version = "4.0.2";
         src = pkgs.fetchurl {
-          url = "https://mirrors.ocf.berkeley.edu/blender/release/Blender4.0/blender-${version}-linux-x64.tar.xz";
+          url =
+            "https://mirrors.ocf.berkeley.edu/blender/release/Blender4.0/blender-${version}-linux-x64.tar.xz";
           sha256 = "sha256-VYOlWIc22ohYxSLvF//11zvlnEem/pGtKcbzJj4iCGo=";
         };
         unpackPhase = ''
@@ -61,7 +63,8 @@
         pname = "human-base-meshes-bundle";
         version = "1.0.0";
         src = pkgs.fetchurl {
-          url = "https://mirrors.ocf.berkeley.edu/blender/demo/bundles/bundles-3.6/human-base-meshes-bundle-v${version}.zip";
+          url =
+            "https://mirrors.ocf.berkeley.edu/blender/demo/bundles/bundles-3.6/human-base-meshes-bundle-v${version}.zip";
           sha256 = "sha256-RqkSwFJAcqw7eMNdXSRx33uN8QI5SgUMqM1xhOM5Nkg=";
         };
         unpackPhase = ''
@@ -75,13 +78,13 @@
       };
       open-human-bundle = {
         type = "app";
-        program =
-          let wrapper = pkgs.writeScriptBin "blender-open-human-bundle" ''
+        program = let
+          wrapper = pkgs.writeScriptBin "blender-open-human-bundle" ''
             #!/bin/sh
             echo exec ${blender}/bin/blender ${human-base-meshes-bundle}/human_base_meshes_bundle.blend
             exec ${blender}/bin/blender ${human-base-meshes-bundle}/human_base_meshes_bundle.blend
-            '';
-           in "${wrapper}/bin/blender-open-human-bundle";
+          '';
+        in "${wrapper}/bin/blender-open-human-bundle";
       };
 
       vcv = pkgs.stdenv.mkDerivation rec {
@@ -123,7 +126,8 @@
             "http://reaper.fm/files/7.x/reaper${version}_linux_x86_64.tar.xz";
           sha256 = "sha256-lpgGXHWWhhs1jLllq5C3UhOLgLyMTE6qWFiGkBcuWlo=";
         };
-        nativeBuildInputs = [ pkgs.which pkgs.autoPatchelfHook pkgs.xdg-utils ];
+        nativeBuildInputs =
+          [ pkgs.makeWrapper pkgs.which pkgs.autoPatchelfHook pkgs.xdg-utils ];
         buildInputs = [ pkgs.stdenv.cc.cc.lib pkgs.gtk3 pkgs.alsa-lib ];
         runtimeDependencies = [
           pkgs.gtk3 # libSwell needs libgdk-3.so.0
@@ -131,6 +135,17 @@
         unpackPhase = ''
           tar xf $src
           mv */REAPER $out
+
+          wrapProgram $out/reaper \
+           --prefix LD_LIBRARY_PATH : "${
+             pkgs.lib.makeLibraryPath [
+               pkgs.lame
+               pkgs.ffmpeg
+               pkgs.vlc
+               pkgs.xdotool
+             ]
+           }"
+
           # Setup wrapper
           mkdir -p $out/bin
           ln -s $out/reaper $out/bin/reaper
