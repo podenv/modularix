@@ -11,14 +11,16 @@ Available app:
 - qpwgraph
 - vcv
 - reaper
-- cardinal (add store path to repear's lv2 dir)
 - mididump
 
 - blender
 - blender-humans (run once to add to library)
 
-Deprecated by qpwgraph:
-- qjackctl
+LV2 plugins (add store path to DAW config):
+
+- cardinal
+- fabla
+- surge
 
 ## Usage
 

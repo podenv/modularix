@@ -10,6 +10,18 @@
         config.allowUnfree = true;
       };
 
+      fabla = pkgs.stdenv.mkDerivation rec {
+        name = "fabla";
+        src = pkgs.fetchFromGitHub {
+          owner = "openAVproductions";
+          repo = "openAV-Fabla";
+          rev = "163796e416b5f52198cb8066ecfc3600a76cb9d1";
+          sha256 = "sha256-B2I4hI7rAgGuh8RwgeicDwzDEoea5WZVhNdCpZF6P0c=";
+        };
+        nativeBuildInputs = [ pkgs.cmake pkgs.pkg-config ];
+        buildInputs = with pkgs; [ ntk cairo cairomm libsndfile lv2 libGL ];
+      };
+
       cardinal = pkgs.stdenv.mkDerivation rec {
         pname = "cardinal";
         version = "23.10";
@@ -28,6 +40,29 @@
           # Setup wrapper
           mkdir -p $out/bin
           ln -s $out/CardinalJACK $out/bin/Cardinal
+        '';
+        dontStrip = true;
+        dontInstall = true;
+      };
+
+      surge = pkgs.stdenv.mkDerivation rec {
+        pname = "surge";
+        version = "1.3.1";
+        src = pkgs.fetchurl {
+          url =
+            "https://github.com/surge-synthesizer/releases-xt/releases/download/${version}/surge-xt-linux-${version}-pluginsonly.tar.gz";
+          sha256 = "1rsbrcpf3q9p23ag2hpzzs67bl9sswa3v2lyc2znmym8gmknnjbv";
+        };
+        unpackPhase = ''
+          # Unpack sources
+          mkdir $out
+          pushd $out
+          tar xf $src
+          popd
+
+          # Setup wrapper
+          mkdir -p $out/bin
+          ln -s $out/surge-xt-cli $out/bin/surge-xt-cli
         '';
         dontStrip = true;
         dontInstall = true;
@@ -171,10 +206,12 @@
 
     in pkgs.lib.foldr pkgs.lib.recursiveUpdate {
       packages.x86_64-linux.qpwgraph = pkgs.qpwgraph;
+      packages.x86_64-linux.fabla = fabla;
       apps.x86_64-linux.blender-humans = open-human-bundle;
     } [
       (mkFlake "vcv" vcv "Rack")
       (mkFlake "cardinal" cardinal "Cardinal")
+      (mkFlake "surge" surge "surge-xt-cli")
       (mkFlake "reaper" reaper "reaper")
       (mkFlake "blender" blender "blender")
       (mkFlake "qjackctl" pkgs.qjackctl "qjackctl")
