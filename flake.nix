@@ -70,11 +70,11 @@
 
       blender = pkgs.stdenv.mkDerivation rec {
         pname = "blender";
-        version = "4.0.2";
+        version = "4.2.1";
         src = pkgs.fetchurl {
           url =
-            "https://mirrors.ocf.berkeley.edu/blender/release/Blender4.0/blender-${version}-linux-x64.tar.xz";
-          sha256 = "sha256-VYOlWIc22ohYxSLvF//11zvlnEem/pGtKcbzJj4iCGo=";
+            "https://mirrors.ocf.berkeley.edu/blender/release/Blender4.2/blender-${version}-linux-x64.tar.xz";
+          sha256 = "sha256-vg+6oMHlLUVSAjIgtMZzUe+7cHysSbs4H8vuIYJEcAU=";
         };
         unpackPhase = ''
           # Unpack sources
