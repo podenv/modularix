@@ -155,11 +155,11 @@
 
       reaper = pkgs.stdenv.mkDerivation rec {
         pname = "reaper";
-        version = "727";
+        version = "728";
         src = pkgs.fetchurl {
           url =
             "http://reaper.fm/files/7.x/reaper${version}_linux_x86_64.tar.xz";
-          sha256 = "sha256-/szRnFsu0LpthdMOy/6fmkE72zxBvhQkcVhPtO54Djk=";
+          sha256 = "sha256-HTxuu1IfjDYnCRksW5tjbOLIFz150wBwyJKCkMATlAk=";
         };
         nativeBuildInputs =
           [ pkgs.makeWrapper pkgs.which pkgs.autoPatchelfHook pkgs.xdg-utils ];
@@ -189,6 +189,39 @@
         dontInstall = true;
       };
 
+      reapack = pkgs.stdenv.mkDerivation rec {
+        pname = "reapack";
+        version = "1.2.5";
+        src = pkgs.fetchFromGitHub {
+          owner = "cfillion";
+          repo = "reapack";
+          rev = "b4ede68f2a41ef4da62f65c2a13c72d9f5d8d993";
+          sha256 = "sha256-RhXAjTNAJegeCJaYkvwJedZrXRA92dQ0EeHJr9ngeCg=";
+          fetchSubmodules = true;
+        };
+        nativeBuildInputs = [ pkgs.cmake pkgs.pkg-config ];
+        buildInputs = with pkgs; [
+          boost
+          curl
+          zlib
+          libxml2
+          sqlite
+          php
+          catch2_3
+        ];
+      };
+
+      install-reapack = {
+        type = "app";
+        program = let
+          wrapper = pkgs.writeScriptBin "reaper-reapack" ''
+            #!/bin/sh
+            echo ln -s ${reapack}/UserPlugins/reaper_reapack-x86_64.so \$HOME/.config/REAPER/UserPlugins
+            ln -s ${reapack}/UserPlugins/reaper_reapack-x86_64.so ~/.config/REAPER/UserPlugins
+          '';
+        in "${wrapper}/bin/reaper-reapack";
+      };
+
       mkFlake = name: pkg: command:
         let
           wrapper = pkgs.writeScriptBin command ''
@@ -207,7 +240,9 @@
     in pkgs.lib.foldr pkgs.lib.recursiveUpdate {
       packages.x86_64-linux.qpwgraph = pkgs.qpwgraph;
       packages.x86_64-linux.fabla = fabla;
+      packages.x86_64-linux.reapack = reapack;
       apps.x86_64-linux.blender-humans = open-human-bundle;
+      apps.x86_64-linux.reapack = install-reapack;
     } [
       (mkFlake "vcv" vcv "Rack")
       (mkFlake "cardinal" cardinal "Cardinal")
