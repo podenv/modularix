@@ -12,6 +12,7 @@ Available app:
 - qpwgraph
 - vcv
 - mididump
+- clap-host
 
 - blender
 - blender-humans (run once to add to library)

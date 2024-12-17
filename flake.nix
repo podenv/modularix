@@ -211,6 +211,21 @@
         ];
       };
 
+      # https://github.com/free-audio/clap-host
+      clap-host = pkgs.stdenv.mkDerivation rec {
+        pname = "clap-host";
+        version = "1.0.3";
+        src = pkgs.fetchFromGitHub {
+          owner = "free-audio";
+          repo = "clap-host";
+          rev = "6a081ba4a2bc4ec6003a8bb4d60dbdeb28a4a11f";
+          sha256 = "sha256-fdmsftmz31Ub7iQ1IkTM69hCbSXomDlO6JHKfGWXwK4=";
+          fetchSubmodules = true;
+        };
+        nativeBuildInputs = [ pkgs.cmake pkgs.pkg-config ];
+        buildInputs = with pkgs; [ qt6.full rtaudio_6 rtmidi ];
+      };
+
       install-reapack = {
         type = "app";
         program = let
@@ -226,7 +241,7 @@
         let
           wrapper = pkgs.writeScriptBin command ''
             #!/bin/sh
-            export PATH=$PATH:${pkgs.gnome.zenity}/bin
+            export PATH=$PATH:${pkgs.zenity}/bin
             exec ${pkgs.pipewire.jack}/bin/pw-jack ${pkg}/bin/${command} $*
           '';
         in {
@@ -241,6 +256,7 @@
       packages.x86_64-linux.qpwgraph = pkgs.qpwgraph;
       packages.x86_64-linux.fabla = fabla;
       packages.x86_64-linux.reapack = reapack;
+      packages.x86_64-linux.clap-host = clap-host;
       apps.x86_64-linux.blender-humans = open-human-bundle;
       apps.x86_64-linux.reapack = install-reapack;
     } [
