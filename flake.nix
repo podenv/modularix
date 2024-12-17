@@ -178,6 +178,9 @@
                pkgs.ffmpeg
                pkgs.vlc
                pkgs.xdotool
+               pkgs.cairo
+               pkgs.xorg.xcbutil
+               pkgs.xorg.xcbutilkeysyms
              ]
            }"
 
