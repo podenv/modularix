@@ -124,10 +124,10 @@
 
       vcv = pkgs.stdenv.mkDerivation rec {
         pname = "Rack";
-        version = "2.4.1";
+        version = "2.5.2";
         src = pkgs.fetchurl {
           url = "https://vcvrack.com/downloads/RackFree-${version}-lin-x64.zip";
-          sha256 = "sha256-Q3W02PpNsVIV+8VBEhfwshiRKWGg4WdEU4XWX2+GxwM=";
+          sha256 = "sha256-bHu6XzzPj+Zndx3dJhnGoX+Etd/THTaD9WwlPidinKE=";
         };
         # This should patchelf to fix nixpkgs libs, but that currently does not work:
         # glwf fails to create the display.
