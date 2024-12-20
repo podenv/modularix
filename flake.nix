@@ -214,6 +214,23 @@
         ];
       };
 
+      hspkgs = pkgs.haskellPackages.extend (hpFinal: hpPrev:
+        let
+          src = pkgs.fetchFromGitHub {
+            owner = "tidalcycles";
+            repo = "Tidal";
+            rev = "2127647dfc25c0a7fe4037f6da81e1f4695e7258";
+            sha256 = "sha256-lIe7gVjDiNZGI/+AxSWPD54Gd7tZoO+MtfmZF7PAEnQ=";
+          };
+        in {
+          tidal = hpPrev.callCabal2nix "tidal" src { };
+          tidal-link = hpPrev.callCabal2nix "tidal" "${src}/tidal-link" { };
+        });
+
+      tidal = hspkgs.ghcWithPackages (p: [ p.tidal ]);
+
+      supercollider = pkgs.supercollider-with-sc3-plugins;
+
       # https://github.com/free-audio/clap-host
       clap-host = pkgs.stdenv.mkDerivation rec {
         pname = "clap-host";
@@ -260,9 +277,12 @@
       packages.x86_64-linux.fabla = fabla;
       packages.x86_64-linux.reapack = reapack;
       packages.x86_64-linux.clap-host = clap-host;
+      packages.x86_64-linux.tidal = tidal;
       apps.x86_64-linux.blender-humans = open-human-bundle;
       apps.x86_64-linux.reapack = install-reapack;
     } [
+      (mkFlake "supercollider" supercollider "scide")
+      (mkFlake "sclang" supercollider "sclang")
       (mkFlake "vcv" vcv "Rack")
       (mkFlake "cardinal" cardinal "Cardinal")
       (mkFlake "surge" surge "surge-xt-cli")

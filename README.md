@@ -9,6 +9,7 @@ $ nix run github:podenv/modularix#app
 Available app:
 
 - reaper with reapack
+- tidal and supercollider
 - qpwgraph
 - vcv
 - mididump
