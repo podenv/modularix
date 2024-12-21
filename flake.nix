@@ -214,6 +214,30 @@
         ];
       };
 
+      sws = pkgs.stdenv.mkDerivation rec {
+        pname = "sws";
+        version = "2.14.0.3";
+        src = pkgs.fetchgit {
+          url = "https://github.com/reaper-oss/sws.git";
+          rev = "539b524f04f7b9d7b3adb874125d42e46d3aba10";
+          sha256 = "sha256-CActmbwniTvF0Qv4Cq75Yc9UsHrRhLsMzJm4+FypPzA=";
+          leaveDotGit = true;
+          fetchSubmodules = true;
+        };
+        nativeBuildInputs = [ pkgs.cmake pkgs.pkg-config pkgs.git ];
+        buildInputs = with pkgs; [
+          boost
+          curl
+          zlib
+          libxml2
+          sqlite
+          php
+          gtk3
+          gdk-pixbuf
+          gobject-introspection
+        ];
+      };
+
       hspkgs = pkgs.haskellPackages.extend (hpFinal: hpPrev:
         let
           src = pkgs.fetchFromGitHub {
@@ -257,6 +281,17 @@
         in "${wrapper}/bin/reaper-reapack";
       };
 
+      install-sws = {
+        type = "app";
+        program = let
+          wrapper = pkgs.writeScriptBin "reaper-sws" ''
+            #!/bin/sh
+            echo ln -s ${sws}/UserPlugins/reaper_sws-x86_64.so \$HOME/.config/REAPER/UserPlugins
+            ln -s ${sws}/UserPlugins/reaper_sws-x86_64.so \$HOME/.config/REAPER/UserPlugins
+          '';
+        in "${wrapper}/bin/reaper-reapack";
+      };
+
       mkFlake = name: pkg: command:
         let
           wrapper = pkgs.writeScriptBin command ''
@@ -276,10 +311,12 @@
       packages.x86_64-linux.qpwgraph = pkgs.qpwgraph;
       packages.x86_64-linux.fabla = fabla;
       packages.x86_64-linux.reapack = reapack;
+      packages.x86_64-linux.sws = sws;
       packages.x86_64-linux.clap-host = clap-host;
       packages.x86_64-linux.tidal = tidal;
       apps.x86_64-linux.blender-humans = open-human-bundle;
       apps.x86_64-linux.reapack = install-reapack;
+      apps.x86_64-linux.sws = install-sws;
     } [
       (mkFlake "supercollider" supercollider "scide")
       (mkFlake "sclang" supercollider "sclang")
