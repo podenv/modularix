@@ -309,6 +309,7 @@
 
     in pkgs.lib.foldr pkgs.lib.recursiveUpdate {
       packages.x86_64-linux.qpwgraph = pkgs.qpwgraph;
+      packages.x86_64-linux.audiowaveform = pkgs.audiowaveform;
       packages.x86_64-linux.fabla = fabla;
       packages.x86_64-linux.reapack = reapack;
       packages.x86_64-linux.sws = sws;
