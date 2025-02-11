@@ -155,11 +155,11 @@
 
       reaper = pkgs.stdenv.mkDerivation rec {
         pname = "reaper";
-        version = "728";
+        version = "733";
         src = pkgs.fetchurl {
           url =
             "http://reaper.fm/files/7.x/reaper${version}_linux_x86_64.tar.xz";
-          sha256 = "sha256-HTxuu1IfjDYnCRksW5tjbOLIFz150wBwyJKCkMATlAk=";
+          sha256 = "sha256-C+iJO6hQib2Z5FKB2dBRD963x9ezSt8G3E3ocaY56TI=";
         };
         nativeBuildInputs =
           [ pkgs.makeWrapper pkgs.which pkgs.autoPatchelfHook pkgs.xdg-utils ];
