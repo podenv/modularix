@@ -255,6 +255,8 @@
           };
         in {
           tidal = hpPrev.callCabal2nix "tidal" src { };
+          tidal-parse =
+            hpPrev.callCabal2nix "tidal-parse" "${src}/tidal-parse" { };
           tidal-link = hpPrev.callCabal2nix "tidal" "${src}/tidal-link" { };
         });
 
@@ -325,6 +327,8 @@
       packages.x86_64-linux.sws = sws;
       packages.x86_64-linux.clap-host = clap-host;
       packages.x86_64-linux.tidal = tidal;
+      devShells.x86_64-linux.tidal =
+        pkgs.mkShell { buildInputs = [ tidal pkgs.cabal-install ]; };
       apps.x86_64-linux.blender-humans = open-human-bundle;
       apps.x86_64-linux.reapack = install-reapack;
       apps.x86_64-linux.sws = install-sws;
