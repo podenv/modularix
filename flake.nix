@@ -6,19 +6,25 @@
     nixpkgs-unstable.url = "github:NixOS/nixpkgs";
     nixpkgs-wine.url =
       "github:NixOS/nixpkgs/94073c2546d20efc0ae206b41fc0b775f1e06dab";
+    nixgl.url = "github:nix-community/nixGL";
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, nixpkgs-wine }:
+  outputs = { self, nixgl, nixpkgs, nixpkgs-unstable, nixpkgs-wine }:
     let
       pkgs = import nixpkgs {
         localSystem = "x86_64-linux";
         config.allowUnfree = true;
+        overlays = [ nixgl.overlay ];
       };
       pkgs-unstable = import nixpkgs-unstable {
         localSystem = "x86_64-linux";
         config.allowUnfree = true;
+        overlays = [ nixgl.overlay ];
       };
-      pkgs-wine = import nixpkgs-wine { localSystem = "x86_64-linux"; };
+      pkgs-wine = import nixpkgs-wine {
+        localSystem = "x86_64-linux";
+        overlays = [ nixgl.overlay ];
+      };
 
       fabla = pkgs.stdenv.mkDerivation rec {
         name = "fabla";
@@ -335,6 +341,17 @@
           };
         };
 
+      reaper-gl = {
+        type = "app";
+        program = let
+          wrapper = pkgs.writeScriptBin "reaper-gl" ''
+            #!/bin/sh
+
+            exec ${pkgs-wine.nixgl.auto.nixGLDefault}/bin/nixGL ${pkgs.pipewire.jack}/bin/pw-jack ${reaper}/bin/reaper $*
+          '';
+        in "${wrapper}/bin/reaper-gl";
+      };
+
     in pkgs.lib.foldr pkgs.lib.recursiveUpdate {
       packages.x86_64-linux.bespoke = pkgs-unstable.bespokesynth;
       packages.x86_64-linux.qpwgraph = pkgs.qpwgraph;
@@ -355,6 +372,7 @@
       apps.x86_64-linux.reapack = install-reapack;
       apps.x86_64-linux.install-yabridge = install-yabridge;
       apps.x86_64-linux.sws = install-sws;
+      apps.x86_64-linux.reaper-gl = reaper-gl;
     } [
       (mkFlake "supercollider" supercollider "scide")
       (mkFlake "sclang" supercollider "sclang")
