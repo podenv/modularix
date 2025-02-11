@@ -1,11 +1,18 @@
 {
   description = "modularix";
 
-  inputs = { nixpkgs.url = "github:NixOS/nixpkgs"; };
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs";
+  };
 
-  outputs = { self, nixpkgs }:
+  outputs = { self, nixpkgs, nixpkgs-unstable }:
     let
       pkgs = import nixpkgs {
+        localSystem = "x86_64-linux";
+        config.allowUnfree = true;
+      };
+      pkgs-unstable = import nixpkgs-unstable {
         localSystem = "x86_64-linux";
         config.allowUnfree = true;
       };
@@ -308,7 +315,10 @@
         };
 
     in pkgs.lib.foldr pkgs.lib.recursiveUpdate {
+      packages.x86_64-linux.bespoke = pkgs-unstable.bespokesynth;
       packages.x86_64-linux.qpwgraph = pkgs.qpwgraph;
+      packages.x86_64-linux.plugdata = pkgs.plugdata;
+      packages.x86_64-linux.puredata = pkgs.puredata;
       packages.x86_64-linux.audiowaveform = pkgs.audiowaveform;
       packages.x86_64-linux.fabla = fabla;
       packages.x86_64-linux.reapack = reapack;

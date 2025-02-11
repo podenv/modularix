@@ -10,7 +10,8 @@ Available app:
 
 - reaper with reapack and sws
 - tidal and supercollider
-- qpwgraph
+- puredata and plugdata
+- bespoke synth
 - vcv
 - mididump
 - clap-host
