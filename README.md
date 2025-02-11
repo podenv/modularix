@@ -19,8 +19,9 @@ Available app:
 - blender
 - blender-humans (run once to add to library)
 
-LV2 plugins (add store path to DAW config):
+CLAP/LV2 plugins (add store path to DAW config):
 
+- lsp-plugins
 - cardinal
 - fabla
 - surge

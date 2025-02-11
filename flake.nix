@@ -359,6 +359,7 @@
       packages.x86_64-linux.puredata = pkgs.puredata;
       packages.x86_64-linux.audiowaveform = pkgs.audiowaveform;
       packages.x86_64-linux.fabla = fabla;
+      packages.x86_64-linux.lsp-plugins = pkgs-unstable.lsp-plugins;
       packages.x86_64-linux.reapack = reapack;
       packages.x86_64-linux.sws = sws;
       packages.x86_64-linux.clap-host = clap-host;
