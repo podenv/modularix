@@ -4,9 +4,11 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs";
+    nixpkgs-wine.url =
+      "github:NixOS/nixpkgs/94073c2546d20efc0ae206b41fc0b775f1e06dab";
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable }:
+  outputs = { self, nixpkgs, nixpkgs-unstable, nixpkgs-wine }:
     let
       pkgs = import nixpkgs {
         localSystem = "x86_64-linux";
@@ -16,6 +18,7 @@
         localSystem = "x86_64-linux";
         config.allowUnfree = true;
       };
+      pkgs-wine = import nixpkgs-wine { localSystem = "x86_64-linux"; };
 
       fabla = pkgs.stdenv.mkDerivation rec {
         name = "fabla";
@@ -279,6 +282,22 @@
         buildInputs = with pkgs; [ qt6.full rtaudio_6 rtmidi ];
       };
 
+      install-yabridge = {
+        type = "app";
+        program = let
+          wrapper = pkgs.writeScriptBin "install-yabridge" ''
+            #!/bin/sh
+            export PATH=${pkgs-wine.yabridgectl}/bin:${pkgs-wine.yabridge}/bin/:$PATH
+            mkdir -p ~/.local/share/yabridge
+            cp $(dirname $(which yabridge-host.exe))/* $(dirname $(which yabridge-host.exe))/../lib/* ~/.local/share/yabridge/
+            yabridgectl add ~/.wine/drive_c/Program\ Files/Steinberg/VSTPlugins/
+            yabridgectl add ~/.wine/drive_c/Program\ Files/Common\ Files/VST3/
+            echo "Running: $(type -p yabridgectl) sync"
+            yabridgectl sync
+          '';
+        in "${wrapper}/bin/install-yabridge";
+      };
+
       install-reapack = {
         type = "app";
         program = let
@@ -327,10 +346,14 @@
       packages.x86_64-linux.sws = sws;
       packages.x86_64-linux.clap-host = clap-host;
       packages.x86_64-linux.tidal = tidal;
+      devShells.x86_64-linux.yabridge = pkgs.mkShell {
+        buildInputs = [ pkgs-wine.yabridge pkgs-wine.yabridgectl ];
+      };
       devShells.x86_64-linux.tidal =
         pkgs.mkShell { buildInputs = [ tidal pkgs.cabal-install ]; };
       apps.x86_64-linux.blender-humans = open-human-bundle;
       apps.x86_64-linux.reapack = install-reapack;
+      apps.x86_64-linux.install-yabridge = install-yabridge;
       apps.x86_64-linux.sws = install-sws;
     } [
       (mkFlake "supercollider" supercollider "scide")

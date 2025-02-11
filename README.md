@@ -8,7 +8,7 @@ $ nix run github:podenv/modularix#app
 
 Available app:
 
-- reaper with reapack and sws
+- reaper with reapack, sws and yabridge
 - tidal and supercollider
 - puredata and plugdata
 - bespoke synth
