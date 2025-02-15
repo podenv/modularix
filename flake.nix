@@ -326,12 +326,12 @@
         in "${wrapper}/bin/reaper-reapack";
       };
 
-      mkFlake = name: pkg: command:
+      mkFlakeWrapped = glWrapper: name: pkg: command:
         let
           wrapper = pkgs.writeScriptBin command ''
             #!/bin/sh
             export PATH=$PATH:${pkgs.zenity}/bin:${pkg}/bin
-            exec ${pkgs.pipewire.jack}/bin/pw-jack ${pkg}/bin/${command} $*
+            exec ${glWrapper} ${pkgs.pipewire.jack}/bin/pw-jack ${pkg}/bin/${command} $*
           '';
         in {
           packages."x86_64-linux"."${name}" = wrapper;
@@ -341,16 +341,16 @@
           };
         };
 
-      reaper-gl = {
-        type = "app";
-        program = let
-          wrapper = pkgs.writeScriptBin "reaper-gl" ''
-            #!/bin/sh
+      mkFlake = mkFlakeWrapped "";
 
-            exec ${pkgs-wine.nixgl.auto.nixGLDefault}/bin/nixGL ${pkgs.pipewire.jack}/bin/pw-jack ${reaper}/bin/reaper $*
-          '';
-        in "${wrapper}/bin/reaper-gl";
-      };
+      mkFlakeGL = name: pkg: command:
+        pkgs.lib.foldr pkgs.lib.recursiveUpdate { } [
+          (mkFlakeWrapped "" name pkg command)
+          (mkFlakeWrapped "${pkgs-wine.nixgl.auto.nixGLDefault}/bin/nixGL"
+            "${name}-nixGL" pkg command)
+          (mkFlakeWrapped "${pkgs-wine.nixgl.nixGLIntel}/bin/nixGLIntel"
+            "${name}-nixGLIntel" pkg command)
+        ];
 
     in pkgs.lib.foldr pkgs.lib.recursiveUpdate {
       packages.x86_64-linux.bespoke = pkgs-unstable.bespokesynth;
@@ -373,14 +373,13 @@
       apps.x86_64-linux.reapack = install-reapack;
       apps.x86_64-linux.install-yabridge = install-yabridge;
       apps.x86_64-linux.sws = install-sws;
-      apps.x86_64-linux.reaper-gl = reaper-gl;
     } [
       (mkFlake "supercollider" supercollider "scide")
       (mkFlake "sclang" supercollider "sclang")
       (mkFlake "vcv" vcv "Rack")
       (mkFlake "cardinal" cardinal "Cardinal")
       (mkFlake "surge" surge "surge-xt-cli")
-      (mkFlake "reaper" reaper "reaper")
+      (mkFlakeGL "reaper" reaper "reaper")
       (mkFlake "blender" blender "blender")
       (mkFlake "qjackctl" pkgs.qjackctl "qjackctl")
       (mkFlake "mididump" pkgs.pipewire "pw-mididump")
