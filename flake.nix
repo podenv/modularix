@@ -374,8 +374,8 @@
       apps.x86_64-linux.install-yabridge = install-yabridge;
       apps.x86_64-linux.sws = install-sws;
     } [
-      (mkFlake "supercollider" supercollider "scide")
-      (mkFlake "sclang" supercollider "sclang")
+      (mkFlakeGL "supercollider" supercollider "scide")
+      (mkFlakeGL "sclang" supercollider "sclang")
       (mkFlake "vcv" vcv "Rack")
       (mkFlake "cardinal" cardinal "Cardinal")
       (mkFlake "surge" surge "surge-xt-cli")
