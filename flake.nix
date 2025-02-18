@@ -288,20 +288,19 @@
         buildInputs = with pkgs; [ qt6.full rtaudio_6 rtmidi ];
       };
 
-      install-yabridge = {
+      install-yabridge = pkgs.writeScriptBin "install-yabridge" ''
+        #!/bin/sh
+        export PATH=${pkgs-wine.yabridgectl}/bin:${pkgs-wine.yabridge}/bin/:$PATH
+        mkdir -p ~/.local/share/yabridge
+        cp $(dirname $(which yabridge-host.exe))/* $(dirname $(which yabridge-host.exe))/../lib/* ~/.local/share/yabridge/
+        yabridgectl add ~/.wine/drive_c/Program\ Files/Steinberg/VSTPlugins/
+        yabridgectl add ~/.wine/drive_c/Program\ Files/Common\ Files/VST3/
+        echo "Running: $(type -p yabridgectl) sync"
+        yabridgectl sync
+      '';
+      install-yabridge-app = {
         type = "app";
-        program = let
-          wrapper = pkgs.writeScriptBin "install-yabridge" ''
-            #!/bin/sh
-            export PATH=${pkgs-wine.yabridgectl}/bin:${pkgs-wine.yabridge}/bin/:$PATH
-            mkdir -p ~/.local/share/yabridge
-            cp $(dirname $(which yabridge-host.exe))/* $(dirname $(which yabridge-host.exe))/../lib/* ~/.local/share/yabridge/
-            yabridgectl add ~/.wine/drive_c/Program\ Files/Steinberg/VSTPlugins/
-            yabridgectl add ~/.wine/drive_c/Program\ Files/Common\ Files/VST3/
-            echo "Running: $(type -p yabridgectl) sync"
-            yabridgectl sync
-          '';
-        in "${wrapper}/bin/install-yabridge";
+        program = "${install-yabridge}/bin/install-yabridge";
       };
 
       install-reapack = {
@@ -365,13 +364,18 @@
       packages.x86_64-linux.clap-host = clap-host;
       packages.x86_64-linux.tidal = tidal;
       devShells.x86_64-linux.yabridge = pkgs.mkShell {
-        buildInputs = [ pkgs-wine.yabridge pkgs-wine.yabridgectl ];
+        buildInputs = [
+          pkgs-wine.yabridge
+          pkgs-wine.yabridgectl
+          pkgs-wine.wineWowPackages.staging
+          install-yabridge
+        ];
       };
       devShells.x86_64-linux.tidal =
         pkgs.mkShell { buildInputs = [ tidal pkgs.cabal-install ]; };
       apps.x86_64-linux.blender-humans = open-human-bundle;
       apps.x86_64-linux.reapack = install-reapack;
-      apps.x86_64-linux.install-yabridge = install-yabridge;
+      apps.x86_64-linux.install-yabridge = install-yabridge-app;
       apps.x86_64-linux.sws = install-sws;
     } [
       (mkFlakeGL "supercollider" supercollider "scide")
